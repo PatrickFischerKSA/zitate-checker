@@ -1,0 +1,23 @@
+const {JSDOM}=require('jsdom'),fs=require('fs'),assert=require('node:assert/strict'),fflate=require('fflate');
+const dom=new JSDOM(fs.readFileSync('dist/index.html','utf8'),{runScripts:'outside-only',url:'https://example.org/'}),w=dom.window;w.HTMLElement.prototype.scrollIntoView=function(){};w.fflate=fflate;w.fetch=async()=>{throw Error('No real requests in unit tests')};w.AbortController=AbortController;w.eval(fs.readFileSync('dist/app.js','utf8')+';window.test=s=>eval(s);');const run=s=>w.test(s);
+run('demo()');
+const make=body=>`<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body.map(t=>'<w:p><w:r><w:t>'+t+'</w:t></w:r></w:p>').join('')}</w:body></w:document>`;
+w.fixture=make(['Ein Nachweis (Keller, 2023, S. 42).','Literaturverzeichnis','Keller, Anna. Lernen im digitalen Zeitalter. Beispiel Verlag, 2022.','Keller, Anna. Lernen im digitalen Zeitalter. Beispiel Verlag, 2022.','Unbekanntes Werk','Anhang','Ein Anhangsabsatz']);
+let a=run('auditBibliography(parse(window.fixture),null)');assert.equal(a.entries.length,3);assert.ok(a.issues.some(i=>i.message.includes('textgleich doppelt')));assert.ok(a.issues.some(i=>i.message.includes('Erscheinungsjahr fehlt oder weicht')));assert.ok(a.issues.some(i=>i.message.includes('Keine Zuordnung')));assert.ok(!a.entries.some(e=>e.text==='Ein Anhangsabsatz'));console.log('PASS bibliography duplicates, year mismatch, unknown entries and section boundary');
+w.fixture=make(['Ein Nachweis (Keller, 2023, S. 42).','Quellenverzeichnis','Anderes Buch, 2020.']);a=run('auditBibliography(parse(window.fixture),null)');assert.ok(a.issues.some(i=>i.message.includes('Zitierte Quelle fehlt')));assert.ok(a.issues.some(i=>i.message.includes('Autor-Jahr-Nachweis ohne')));console.log('PASS cited source missing from bibliography');
+run('sources=[]');a=run('auditBibliography(parse(window.fixture),null)');assert.ok(a.entries.length===1);assert.ok(a.issues.some(i=>i.message.includes('Autor-Jahr-Nachweis ohne')));console.log('PASS standalone audit without metadata');
+run('demo()');w.fixture=make(['Text','Literaturverzeichnis','Keller, A. (2023). Lernen im digitalen Zeitalter. Beispiel Verlag.']);a=run('auditBibliography(parse(window.fixture),null)');assert.ok(a.issues.some(i=>i.message.includes('Kursivsetzung')));assert.ok(a.issues.some(i=>i.message.includes('Kein eindeutiger Nachweis')));console.log('PASS italic title and uncited entry checks');
+// Relationship targets are included even if the visible link text is unrelated.
+w.fixture=make(['www.example.org/test','https://example.org/path_(x).']);run("pack={'word/document.xml':fflate.strToU8(window.fixture),'word/_rels/document.xml.rels':fflate.strToU8('<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"r1\" TargetMode=\"External\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"https://example.net/hidden\"/></Relationships>')}");const links=run('collectDocumentLinks()');assert.ok(links.some(l=>l.url==='https://example.net/hidden'));assert.ok(links.some(l=>l.url==='www.example.org/test'));assert.ok(links.some(l=>l.url==='https://example.org/path_(x)'));console.log('PASS link extraction: text, balanced parentheses and hidden targets');
+(async()=>{
+ const check=run('checkOneLink');const item={url:'https://example.org/',locations:['test']};const response=(status,more={})=>({status,ok:status>=200&&status<300,type:'cors',url:item.url,...more});
+ assert.equal((await check(item,async()=>response(200))).state,'reachable');
+ assert.equal((await check(item,async()=>response(404))).state,'broken');
+ assert.equal((await check(item,async()=>response(403))).state,'restricted');
+ assert.equal((await check(item,async()=>{throw Error('CORS')})).state,'unknown');
+ assert.equal((await check(item,async()=>response(0,{type:'opaque'}))).state,'unknown');
+ let calls=[];assert.equal((await check(item,async(_,opts)=>{calls.push(opts);return response(calls.length===1?405:200)})).state,'reachable');assert.equal(calls[1].method,'GET');assert.equal(calls[0].credentials,'omit');
+ for(const url of ['http://localhost/a','http://127.0.0.1/','http://192.168.1.1/','https://user:password@example.org/'])assert.equal((await check({...item,url},async()=>{throw Error('must not fetch')})).state,'manual');
+ assert.equal((await check({...item,url:'www.example.org'},async()=>{throw Error('must not fetch')})).state,'invalid');
+ console.log('PASS link status classification, CORS uncertainty, HEAD fallback, privacy and local targets');
+})().catch(e=>{console.error(e);process.exitCode=1});
