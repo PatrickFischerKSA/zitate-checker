@@ -77,7 +77,7 @@ GitHub-Pages-Konfiguration: [offizielle GitHub-Anleitung für eigene Workflows](
 
 ## Schulvorlage aus dem Theorieblatt
 
-Die zusätzliche Schaltfläche **Theorieblatt** setzt den mitgelieferten schulischen Fussnotenstil um. Das Original steht unter `dist/docs/theorieblatt-zitierregeln.pdf`; die Regelhilfe ist direkt bei der Stilwahl aufklappbar.
+Die zusätzliche Schaltfläche **Geisteswissenschaftliche Zitierweise** setzt den mitgelieferten schulischen Fussnotenstil um. Das Original steht unter `dist/docs/theorieblatt-zitierregeln.pdf`; die Regelhilfe ist direkt bei der Stilwahl aufklappbar.
 
 - Bücher: Nachname, Vorname: Titel. Verlag. Auflage, Ort Jahr. S. …
 - Spätere Nennungen: Nachname: bestätigter Kurztitel (sonst voller Titel). S. …
@@ -86,4 +86,13 @@ Die zusätzliche Schaltfläche **Theorieblatt** setzt den mitgelieferten schulis
 - Zitatgrenzen, Auslassungen und Fussnotenpositionen müssen kontrolliert werden. Der Checker verschiebt Nachweispositionen nicht anhand einer geratenen Interpretation des Textes.
 - Das Theorieblatt definiert kein Literaturverzeichnis. Die dafür angebotene Vorlage ist eine ausdrücklich gekennzeichnete Ableitung. Mehrere Autor:innen, etwa im Frenzel-Beispiel des Blatts, benötigen weiterhin manuelle Prüfung.
 
-Die Einschränkung bezüglich Internetquellen oben gilt für die fünf allgemeinen Stilvorlagen. Die Theorieblatt-Vorlage unterstützt zusätzlich die dort beschriebene einfache URL-Fussnote.
+Die Einschränkung bezüglich Internetquellen oben gilt für die fünf allgemeinen Stilvorlagen. Die geisteswissenschaftliche Vorlage unterstützt zusätzlich die dort beschriebene einfache URL-Fussnote.
+
+
+## Wörtliche und sinngemässe Zitate, Guillemets und Auslassungen
+
+Jeder Quellen-Vorschlag verlangt die ausdrückliche Wahl zwischen wörtlich (exakter Wortlaut) und sinngemäss (eigene Formulierung). Ohne Wahl ist die Bestätigung gesperrt. Die geisteswissenschaftliche Vorlage kennzeichnet sinngemässe Nachweise mit vgl.; die übrigen Stile behalten ihr eigenes Nachweisformat. Vorhandenes vgl. wird erkannt. Wortlaut, Originalquelle und die Zuordnung der Zitatgrenzen werden nicht inhaltlich verifiziert.
+
+Die zusätzliche Typografieprüfung gilt im Haupttext und in einfachen Fussnoten für alle Vorlagen. Sie bietet zusammengehörige Anführungszeichen als Schweizer Guillemets «…» und verschachtelte Paare als ‹…› an. Leerraum direkt innerhalb der Guillemets wird zur Entfernung vorgeschlagen. Bereits geklammerte Auslassungen werden zu […] vereinheitlicht und von unmittelbar angrenzenden Wörtern abgesetzt. Jede Änderung ist einzeln bestätigbar.
+
+Unklare/fehlende Zitatgrenzen und Auslassungsmarkierungen ausserhalb erkannter Zitate werden gemeldet. Ungeklammerte … oder ... werden nicht automatisch als redaktionelle Kürzung interpretiert. Ob und wo gegenüber dem Original gekürzt wurde, muss anhand der Quelle bestätigt werden. An Zitatgrenzen werden keine Auslassungen erfunden. Sinngemässe Abschnitte werden nicht automatisch entklammert und wörtliche Abschnitte nicht anhand einer geratenen Textgrenze mit Guillemets umschlossen.
